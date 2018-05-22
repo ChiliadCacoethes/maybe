@@ -1,0 +1,24 @@
+{
+  "name": "maybe",
+  "version": "1.4.7",
+  "description": "Never worry about undefined or null values again",
+  "main": "maybe.js",
+  "scripts": {
+    "test": "standard"
+  },
+  "repository": {
+    "type": "git",
+    "url": ".git"
+  },
+  "keywords": [
+    "maybe",
+    "monad",
+    "safe"
+  ],
+  "author": {
+    "name": "Cacoethes",
+    "email": "agitated.repose@pm.me",
+    "url": "https://github.com/ChiliadCacoethes"
+  },
+  "license": "MIT"
+}
