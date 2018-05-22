@@ -1,168 +1,150 @@
 /**
- * @module              MaybeMonad
- * @description         Creates a safe method to wrap data of unknown type
- * @author              Cacoethes
- * @version             1.4.7
- * @license             MIT
- */
-const MaybeMonad = (function () {
-  /**
-   * Nothing data-type
-   * @class Nothing
-   */
-  const Nothing = (function () {
+* @module              MaybeMonad
+* @description         Creates a safe method to wrap data of unknown type
+* @author              Cacoethes
+* @version             1.4.7
+* @license             MIT
+*/
+;(function () {
+  var MaybeMonad = (function () {
     /**
-     * Nothing data-type
-     * @class Nothing
-     */
-    class Nothing {
+    * Nothing data-type
+    * @class Nothing
+    */
+    var Nothing = (function () {
       /**
-       * Creates a Nothing
-       * @public
-       * @returns {Just}
-       */
-      constructor () {
+      * Creates a Nothing
+      * @public
+      * @returns {Just}
+      */
+      var Nothing = function () {
         return this
       }
 
       /**
-       * Returns a wrapped value
-       * @public
-       * @returns {Nothing}
-       */
-      unwrap () {
+      * Returns a wrapped value
+      * @public
+      * @returns {Nothing}
+      */
+      Nothing.prototype.unwrap = function () {
         return this
       }
-    }
 
-    return Nothing
-  }())
-
-  /**
-   * Just data-type
-   * @class Just
-   */
-  const Just = (function () {
-    /**
-     * internal value symbol
-     * @private
-     */
-    const internal = Symbol('justvalue')
+      return Nothing
+    }())
 
     /**
-     * Just data-type
-     *
-     * @class Maybe
-     */
-    class Just {
+    * Just data-type
+    * @class Just
+    */
+    var Just = (function () {
       /**
-       * Wraps a value into a Just
-       * @public
-       * @param {any} value any type to wrap
-       * @returns {Just}
-       */
-      constructor (value) {
+      * internal value symbol
+      * @private
+      */
+      var internal = Symbol('justvalue')
+
+      /**
+      * Wraps a value into a Just
+      * @public
+      * @param {any} value any type to wrap
+      * @returns {Just}
+      */
+      var Just = function (value) {
         this[internal] = value
         return this
       }
 
       /**
-       * Returns a wrapped value
-       * @public
-       * @returns {any}
-       */
-      unwrap () {
+      * Returns a wrapped value
+      * @public
+      * @returns {any}
+      */
+      Just.prototype.unwrap = function () {
         return this[internal]
       }
-    }
 
-    return Just
-  }())
-
-  /**
-   * Maybe data-type
-   * @class Maybe
-   */
-  const Maybe = (function () {
-    /**
-     * internal value symbol
-     * @private
-     */
-    const internal = Symbol('justornothing')
+      return Just
+    }())
 
     /**
-     * Checks the nothingness of a passed value
-     * @private
-     * @param {any} value any value to wrap
-     * @returns {boolean}
-     */
-    const isNothingType = function (value) {
-      let nothings = [null, undefined, NaN, [], '']
-
-      return nothings.includes(value)
-    }
-
-    /**
-     * Checks the justness of any type
-     * @private
-     * @param {any} value any type to be evaluated
-     * @returns {boolean}
-     */
-    const isJust = function (value) {
-      return value instanceof Just
-    }
-
-    /**
-     * Checks the nothingness of any type
-     * @private
-     * @param {any} value any type to be evaluated
-     * @returns {boolean}
-     */
-    const isNothing = function (value) {
-      return value instanceof Nothing
-    }
-
-    /**
-     * Checks whether the passed value is already wrapped
-     * @private
-     * @param {any} value any type to be evaluated
-     * @returns {boolean}
-     */
-    const isWrapped = function (value) {
-      return isJust(value) || isNothing(value)
-    }
-
-    /**
-     * Takes a value and attempts to wrap it into a Just or Nothing
-     * @private
-     * @param {any} value the value to wrap
-     * @returns {Just|Nothing}
-     */
-    const wrap = function (value) {
-      let evaled = typeof value === 'function'
-        ? value()
-        : value
-
-      return isWrapped(evaled)
-        ? evaled
-        : isNothingType(evaled)
-          ? new Nothing()
-          : new Just(evaled)
-    }
-
-    /**
-     * Maybe data-type
-     *
-     * @class Maybe
-     */
-    class Maybe {
+    * Maybe data-type
+    * @class Maybe
+    */
+    var Maybe = (function () {
       /**
-       * Evaluates and attempts to wrap a value into itself
-       * @public
-       * @param {any} value any type to wrap
-       * @returns {Maybe}
-       */
-      constructor (value) {
+      * internal value symbol
+      * @private
+      */
+      var internal = Symbol('justornothing')
+
+      /**
+      * Checks the nothingness of a passed value
+      * @private
+      * @param {any} value any value to wrap
+      * @returns {boolean}
+      */
+      var isNothingType = function (value) {
+        var nothings = [null, undefined, NaN, [], '']
+
+        return nothings.includes(value)
+      }
+
+      /**
+      * Checks the justness of any type
+      * @private
+      * @param {any} value any type to be evaluated
+      * @returns {boolean}
+      */
+      var isJust = function (value) {
+        return value instanceof Just
+      }
+
+      /**
+      * Checks the nothingness of any type
+      * @private
+      * @param {any} value any type to be evaluated
+      * @returns {boolean}
+      */
+      var isNothing = function (value) {
+        return value instanceof Nothing
+      }
+
+      /**
+      * Checks whether the passed value is already wrapped
+      * @private
+      * @param {any} value any type to be evaluated
+      * @returns {boolean}
+      */
+      var isWrapped = function (value) {
+        return isJust(value) || isNothing(value)
+      }
+
+      /**
+      * Takes a value and attempts to wrap it into a Just or Nothing
+      * @private
+      * @param {any} value the value to wrap
+      * @returns {Just|Nothing}
+      */
+      var wrap = function (value) {
+        let evaled = typeof value === 'function'
+          ? value()
+          : value
+
+        return isWrapped(evaled)
+          ? evaled
+          : isNothingType(evaled)
+            ? new Nothing()
+            : new Just(evaled)
+      }
+
+      /**
+      * Evaluates and attempts to wrap a value into itself
+      * @public
+      * @param {any} value any type to wrap
+      * @returns {Maybe}
+      */
+      var Maybe = function (value) {
         if (value instanceof Maybe) { return value }
 
         if (this instanceof Maybe) {
@@ -173,22 +155,22 @@ const MaybeMonad = (function () {
       }
 
       /**
-       * Static method of Maybe creation
-       * @public
-       * @param {value} value any type to wrap into a maybe
-       * @returns {Maybe}
-       */
-      static of (value) {
+      * Static method of Maybe creation
+      * @public
+      * @param {value} value any type to wrap into a maybe
+      * @returns {Maybe}
+      */
+      Maybe.of = function (value) {
         return new Maybe(value)
       }
 
       /**
-       * Provides a method to evaluate the Justness of a Maybe and get its value
-       * @public
-       * @param {function} callback the optional callback for value extraction
-       * @returns {boolean|Maybe}
-       */
-      isJust (callback) {
+      * Provides a method to evaluate the Justness of a Maybe and get its value
+      * @public
+      * @param {function} callback the optional callback for value extraction
+      * @returns {boolean|Maybe}
+      */
+      Maybe.prototype.isJust = function (callback) {
         const hasCallback = typeof callback === 'function'
 
         if (isJust(this[internal])) {
@@ -206,12 +188,12 @@ const MaybeMonad = (function () {
       }
 
       /**
-       * Provides a method to evaluate the Nothingness of a Maybe
-       * @public
-       * @param {function} callback the optional callback for error handling
-       * @returns {boolean|Maybe}
-       */
-      isNothing (callback) {
+      * Provides a method to evaluate the Nothingness of a Maybe
+      * @public
+      * @param {function} callback the optional callback for error handling
+      * @returns {boolean|Maybe}
+      */
+      Maybe.prototype.isNothing = function (callback) {
         const hasCallback = typeof callback === 'function'
 
         if (isNothing(this[internal])) {
@@ -227,16 +209,16 @@ const MaybeMonad = (function () {
           ? this
           : false
       }
-    }
 
-    return Maybe
+      return Maybe
+    }())
+
+    return {
+      Maybe: Maybe,
+      Just: Just,
+      Nothing: Nothing
+    }
   }())
 
-  return {
-    Maybe: Maybe,
-    Just: Just,
-    Nothing: Nothing
-  }
+  Object.assign(window, MaybeMonad)
 }())
-
-Object.assign(window, MaybeMonad)
