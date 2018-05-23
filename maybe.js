@@ -7,25 +7,11 @@
 */
 /* global define */
 define('cacoethes/maybe', [], function () {
-  /**
-  * Nothing data-type
-  * @class Nothing
-  */
   var Nothing = (function () {
-    /**
-    * Creates a Nothing
-    * @public
-    * @returns {Just}
-    */
     var Nothing = function () {
       return this
     }
 
-    /**
-    * Returns a wrapped value
-    * @public
-    * @returns {Nothing}
-    */
     Nothing.prototype.unwrap = function () {
       return this
     }
@@ -33,33 +19,14 @@ define('cacoethes/maybe', [], function () {
     return Nothing
   }())
 
-  /**
-  * Just data-type
-  * @class Just
-  */
   var Just = (function () {
-    /**
-    * internal value symbol
-    * @private
-    */
     var internal = Symbol('justvalue')
 
-    /**
-    * Wraps a value into a Just
-    * @public
-    * @param {any} value any type to wrap
-    * @returns {Just}
-    */
     var Just = function (value) {
       this[internal] = value
       return this
     }
 
-    /**
-    * Returns a wrapped value
-    * @public
-    * @returns {any}
-    */
     Just.prototype.unwrap = function () {
       return this[internal]
     }
@@ -67,65 +34,49 @@ define('cacoethes/maybe', [], function () {
     return Just
   }())
 
-  /**
-  * Maybe data-type
-  * @class Maybe
-  */
   var Maybe = (function () {
-    /**
-    * internal value symbol
-    * @private
-    */
     var internal = Symbol('justornothing')
 
-    /**
-    * Checks the nothingness of a passed value
-    * @private
-    * @param {any} value any value to wrap
-    * @returns {boolean}
-    */
-    var isNothingType = function (value) {
-      var nothings = [null, undefined, NaN, [], '']
+    var noop = function () {}
 
-      return nothings.includes(value)
+    var hasCallback = function (cb, succ, err) {
+      if (typeof cb === 'function') {
+        return succ(cb)
+      } else {
+        return err()
+      }
     }
 
-    /**
-    * Checks the justness of any type
-    * @private
-    * @param {any} value any type to be evaluated
-    * @returns {boolean}
-    */
+    var toArray = function (value) {
+      if (!Array.isArray(value)) {
+        return [value]
+      }
+
+      return value
+    }
+
+    var isNothingType = function (value) {
+      var nothings = [null, undefined, NaN, '']
+
+      return nothings.includes(value) ||
+        (
+          (Array.isArray(value)) &&
+              (value.length === 0)
+        )
+    }
+
     var isJust = function (value) {
       return value instanceof Just
     }
 
-    /**
-    * Checks the nothingness of any type
-    * @private
-    * @param {any} value any type to be evaluated
-    * @returns {boolean}
-    */
     var isNothing = function (value) {
       return value instanceof Nothing
     }
 
-    /**
-    * Checks whether the passed value is already wrapped
-    * @private
-    * @param {any} value any type to be evaluated
-    * @returns {boolean}
-    */
     var isWrapped = function (value) {
       return isJust(value) || isNothing(value)
     }
 
-    /**
-    * Takes a value and attempts to wrap it into a Just or Nothing
-    * @private
-    * @param {any} value the value to wrap
-    * @returns {Just|Nothing}
-    */
     var wrap = function (value) {
       var evaled = typeof value === 'function'
         ? value()
@@ -138,12 +89,6 @@ define('cacoethes/maybe', [], function () {
           : new Just(evaled)
     }
 
-    /**
-    * Evaluates and attempts to wrap a value into itself
-    * @public
-    * @param {any} value any type to wrap
-    * @returns {Maybe}
-    */
     var Maybe = function (value) {
       if (value instanceof Maybe) { return value }
 
@@ -154,60 +99,89 @@ define('cacoethes/maybe', [], function () {
       }
     }
 
-    /**
-    * Static method of Maybe creation
-    * @public
-    * @param {value} value any type to wrap into a maybe
-    * @returns {Maybe}
-    */
     Maybe.of = function (value) {
       return new Maybe(value)
     }
 
-    /**
-    * Provides a method to evaluate the Justness of a Maybe and get its value
-    * @public
-    * @param {function} callback the optional callback for value extraction
-    * @returns {boolean|Maybe}
-    */
-    Maybe.prototype.isJust = function (callback) {
-      const hasCallback = typeof callback === 'function'
-
-      if (isJust(this[internal])) {
-        if (hasCallback) {
-          callback(this[internal].unwrap())
-          return this
-        } else {
-          return true
-        }
+    Maybe.prototype.unsafeExport = function (caller) {
+      if (caller instanceof Maybe) {
+        return this[internal].unwrap()
       }
 
-      return hasCallback
+      return Maybe.of(null)
+    }
+
+    Maybe.prototype.isJust = function (callback) {
+      if (isJust(this[internal])) {
+        hasCallback(callback, function (callback) {
+          callback()
+          return this
+        }, function () {
+          return true
+        })
+      }
+
+      return typeof callback === 'function'
         ? this
         : false
     }
 
-    /**
-    * Provides a method to evaluate the Nothingness of a Maybe
-    * @public
-    * @param {function} callback the optional callback for error handling
-    * @returns {boolean|Maybe}
-    */
     Maybe.prototype.isNothing = function (callback) {
-      const hasCallback = typeof callback === 'function'
-
       if (isNothing(this[internal])) {
-        if (hasCallback) {
+        hasCallback(callback, function (callback) {
           callback()
           return this
-        } else {
+        }, function () {
           return true
-        }
+        })
       }
 
-      return hasCallback
+      return typeof callback === 'function'
         ? this
         : false
+    }
+
+    Maybe.prototype.forEach = function (callback) {
+      var value = toArray(this[internal].unwrap())
+
+      value.forEach(function (el, i, arr) {
+        hasCallback(callback, function (callback) {
+          callback(el, i, arr)
+        }, noop)
+      })
+
+      return this
+    }
+
+    Maybe.prototype.map = function (callback) {
+      var value = toArray(this[internal].unwrap())
+      var maybes
+
+      maybes = value.map(function (el, i, arr) {
+        var val
+
+        if (el instanceof Maybe) {
+          val = el.unsafeExport(this)
+
+          if (isJust(val)) {
+            val = val.unwrap()
+          }
+        } else {
+          val = el
+        }
+
+        if (!(val instanceof Nothing)) {
+          val = hasCallback(callback, function (callback) {
+            return callback(val, i, arr)
+          }, function () {
+            return val
+          })
+        }
+
+        return Maybe.of(val)
+      }.bind(this))
+
+      return Maybe.of(maybes)
     }
 
     return Maybe
