@@ -20,7 +20,7 @@ define('cacoethes/maybe', [], function () {
     var Nothing = function () {
       return this
     }
-    
+
     /**
     * Returns a wrapped value
     * @public
@@ -29,10 +29,10 @@ define('cacoethes/maybe', [], function () {
     Nothing.prototype.unwrap = function () {
       return this
     }
-    
+
     return Nothing
   }())
-  
+
   /**
   * Just data-type
   * @class Just
@@ -43,7 +43,7 @@ define('cacoethes/maybe', [], function () {
     * @private
     */
     var internal = Symbol('justvalue')
-    
+
     /**
     * Wraps a value into a Just
     * @public
@@ -54,7 +54,7 @@ define('cacoethes/maybe', [], function () {
       this[internal] = value
       return this
     }
-    
+
     /**
     * Returns a wrapped value
     * @public
@@ -63,10 +63,10 @@ define('cacoethes/maybe', [], function () {
     Just.prototype.unwrap = function () {
       return this[internal]
     }
-    
+
     return Just
   }())
-  
+
   /**
   * Maybe data-type
   * @class Maybe
@@ -77,7 +77,7 @@ define('cacoethes/maybe', [], function () {
     * @private
     */
     var internal = Symbol('justornothing')
-    
+
     /**
     * Checks the nothingness of a passed value
     * @private
@@ -86,10 +86,10 @@ define('cacoethes/maybe', [], function () {
     */
     var isNothingType = function (value) {
       var nothings = [null, undefined, NaN, [], '']
-      
+
       return nothings.includes(value)
     }
-    
+
     /**
     * Checks the justness of any type
     * @private
@@ -99,7 +99,7 @@ define('cacoethes/maybe', [], function () {
     var isJust = function (value) {
       return value instanceof Just
     }
-    
+
     /**
     * Checks the nothingness of any type
     * @private
@@ -109,7 +109,7 @@ define('cacoethes/maybe', [], function () {
     var isNothing = function (value) {
       return value instanceof Nothing
     }
-    
+
     /**
     * Checks whether the passed value is already wrapped
     * @private
@@ -119,7 +119,7 @@ define('cacoethes/maybe', [], function () {
     var isWrapped = function (value) {
       return isJust(value) || isNothing(value)
     }
-    
+
     /**
     * Takes a value and attempts to wrap it into a Just or Nothing
     * @private
@@ -130,14 +130,14 @@ define('cacoethes/maybe', [], function () {
       var evaled = typeof value === 'function'
         ? value()
         : value
-      
+
       return isWrapped(evaled)
         ? evaled
         : isNothingType(evaled)
           ? new Nothing()
           : new Just(evaled)
     }
-    
+
     /**
     * Evaluates and attempts to wrap a value into itself
     * @public
@@ -146,14 +146,14 @@ define('cacoethes/maybe', [], function () {
     */
     var Maybe = function (value) {
       if (value instanceof Maybe) { return value }
-      
+
       if (this instanceof Maybe) {
         this[internal] = wrap(value)
       } else {
         return new Maybe(value)
       }
     }
-    
+
     /**
     * Static method of Maybe creation
     * @public
@@ -163,7 +163,7 @@ define('cacoethes/maybe', [], function () {
     Maybe.of = function (value) {
       return new Maybe(value)
     }
-    
+
     /**
     * Provides a method to evaluate the Justness of a Maybe and get its value
     * @public
@@ -172,7 +172,7 @@ define('cacoethes/maybe', [], function () {
     */
     Maybe.prototype.isJust = function (callback) {
       const hasCallback = typeof callback === 'function'
-      
+
       if (isJust(this[internal])) {
         if (hasCallback) {
           callback(this[internal].unwrap())
@@ -181,12 +181,12 @@ define('cacoethes/maybe', [], function () {
           return true
         }
       }
-      
+
       return hasCallback
         ? this
         : false
     }
-    
+
     /**
     * Provides a method to evaluate the Nothingness of a Maybe
     * @public
@@ -195,7 +195,7 @@ define('cacoethes/maybe', [], function () {
     */
     Maybe.prototype.isNothing = function (callback) {
       const hasCallback = typeof callback === 'function'
-      
+
       if (isNothing(this[internal])) {
         if (hasCallback) {
           callback()
@@ -204,14 +204,14 @@ define('cacoethes/maybe', [], function () {
           return true
         }
       }
-      
+
       return hasCallback
         ? this
         : false
     }
-    
+
     return Maybe
   }())
-  
+
   return Maybe
 })
