@@ -89,6 +89,33 @@ define('cacoethes/maybe', [], function () {
           : new Just(evaled)
     }
 
+    var evaluateChild = function (looking, value, callback) {
+      var truthy = false
+      var val = value[internal]
+
+      switch (looking) {
+        case 'just':
+          truthy = isJust(val)
+          break
+        case 'nothing':
+          truthy = isNothing(val)
+          break
+      }
+
+      if (truthy) {
+        return hasCallback(callback, function (callback) {
+          callback(val.unwrap())
+          return value
+        }, function () {
+          return true
+        })
+      }
+
+      return typeof callback === 'function'
+        ? value
+        : false
+    }
+
     var Maybe = function (value) {
       if (value instanceof Maybe) { return value }
 
@@ -112,33 +139,11 @@ define('cacoethes/maybe', [], function () {
     }
 
     Maybe.prototype.isJust = function (callback) {
-      if (isJust(this[internal])) {
-        hasCallback(callback, function (callback) {
-          callback()
-          return this
-        }, function () {
-          return true
-        })
-      }
-
-      return typeof callback === 'function'
-        ? this
-        : false
+      return evaluateChild('just', this, callback)
     }
 
     Maybe.prototype.isNothing = function (callback) {
-      if (isNothing(this[internal])) {
-        hasCallback(callback, function (callback) {
-          callback()
-          return this
-        }, function () {
-          return true
-        })
-      }
-
-      return typeof callback === 'function'
-        ? this
-        : false
+      return evaluateChild('nothing', this, callback)
     }
 
     Maybe.prototype.forEach = function (callback) {
